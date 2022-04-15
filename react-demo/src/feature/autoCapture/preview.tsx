@@ -58,7 +58,6 @@ const AUDIO_MASK = 1,
   VIDEO_MASK = 4;
 
 let PREVIEW_VIDEO: any;
-let DETECT_CANVAS: any;
 let width: number = 800;
 let height: number = 450;
 
@@ -190,7 +189,6 @@ const PreviewContainer = () => {
 
   useMount(() => {
     PREVIEW_VIDEO = document.getElementById('js-preview-video');
-    DETECT_CANVAS = document.getElementById('canvas');
     mountDevices().then((devices) => {
       console.log('devicesdevicesdevicesdevices', devices);
       setMicList(devices.mics);
@@ -199,10 +197,15 @@ const PreviewContainer = () => {
     });
   });
 
+  // face recognition
+  const video = useRef<HTMLVideoElement | null>(null);
+  const canvasDetec = useRef<HTMLCanvasElement | null>(null);
   useEffect(() => {
     console.log("camera", isStartedVideo);
     if(isStartedVideo){
-      runDetection(PREVIEW_VIDEO, DETECT_CANVAS, width, height )
+      if(video.current && canvasDetec.current){
+        runDetection(video.current, canvasDetec.current, width, height )
+      }
     }
   }, [isStartedVideo])
 
@@ -246,6 +249,7 @@ const PreviewContainer = () => {
               className="preview-video"
               muted={true}
               data-video="0"
+              ref={video}
             ></video>
             <Webcam
               style={{ position: "absolute", top:0, left:0, zIndex: -1}}
@@ -257,7 +261,7 @@ const PreviewContainer = () => {
               width={width}
               videoConstraints={videoConstraints}
             />
-            <canvas id="canvas" width="800" height="450" style={{ position: "absolute", top:0, left:0}} ></canvas>
+            <canvas id="canvas" ref={canvasDetec} width="800" height="450" style={{ position: "absolute", top:0, left:0}} ></canvas>
           </div>
           <div className="video-footer video-operations video-operations-preview">
             <MicrophoneButton

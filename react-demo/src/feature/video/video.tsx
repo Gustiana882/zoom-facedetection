@@ -23,6 +23,9 @@ import { isSupportWebCodecs } from '../../utils/platform';
 import { isShallowEqual } from "../../utils/util";
 import { useSizeCallback } from "../../hooks/useSizeCallback";
 
+// import face api
+import runDetection from '../../utils/face_detection/index';
+
 const VideoContainer: React.FunctionComponent<RouteComponentProps> = (props) => {
   const zmClient = useContext(ZoomContext);
   const {
@@ -97,6 +100,23 @@ const VideoContainer: React.FunctionComponent<RouteComponentProps> = (props) => 
     }
   }, [mediaStream, sharedContentDimension, shareViewDimension]);
 
+
+  // video detection
+  let canvasDetec = useRef<HTMLCanvasElement|null>(null)
+  let width = videoRef.current?.width;
+  let height = videoRef.current?.height;
+
+  useEffect(() => {
+    if(width && height && canvasDetec.current){
+      runDetection(videoRef.current, canvasDetec.current, width, height )
+    } else if(!canvasDetec.current){
+      console.log("canvasDetec.current undifined");
+    } else {
+      runDetection(videoRef.current, canvasDetec.current, 800, 600 )
+    }
+  }, [width, height])
+
+
   return (
     <div className="viewport">
       <div
@@ -137,6 +157,7 @@ const VideoContainer: React.FunctionComponent<RouteComponentProps> = (props) => 
         className={classnames('video-container', {
           'in-sharing': isSharing,
         })}
+        style={{ position: "relative" }}
       >
         <canvas
           className="video-canvas"
@@ -145,6 +166,9 @@ const VideoContainer: React.FunctionComponent<RouteComponentProps> = (props) => 
           height="600"
           ref={videoRef}
         />
+        {/* canvas detection */}
+        <canvas ref={canvasDetec} id="canvas-detec" className="video-canvas" style={{ position: "absolute", left: 0}}></canvas>
+
         <ul className="avatar-list">
           {visibleParticipants.map((user, index) => {
             if (index > videoLayout.length - 1) {
