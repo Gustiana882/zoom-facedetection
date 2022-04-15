@@ -5,6 +5,7 @@ referensi
 - https://github.com/zoom/sample-app-videosdk
 
 ## Flow
+![alt text](https://github.com/Gustiana882/zoom-facedetection/blob/master/flow.png "Flow")
 
 
 ## React Demo
